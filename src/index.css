@@ -1,0 +1,252 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   VIDA BOA — DESIGN SYSTEM
+   Tokens · Tipografia · Primitivos
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Superfícies — creme e espresso, ambos derivados do logo */
+    --surface-0: #faf4ec;
+    --surface-1: #f6e9df;
+    --surface-2: #f3dac4;
+    --surface-ink: #1c0f07;
+    --surface-ink-soft: #2a1a0e;
+
+    /* Marca — cores lidas direto do arquivo do logo */
+    --brand: #ce5c26; /* script "Vida Boa" */
+    --brand-soft: #d98c52;
+    --accent: #ce5c26;
+    --accent-soft: #d98c52;
+    --gold: #e19f3c; /* "POUSADA" e raios do sol */
+    --sun: #f7a51b; /* núcleo do sol */
+
+    /* Traço */
+    --line: rgba(28, 15, 7, 0.1);
+    --line-strong: rgba(28, 15, 7, 0.18);
+    --line-invert: rgba(250, 244, 236, 0.14);
+
+    /* Ritmo vertical */
+    --section-y: clamp(5rem, 11vw, 10rem);
+    --gutter: clamp(1.25rem, 5vw, 4.5rem);
+
+    /* Curvas */
+    --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    color-scheme: light;
+  }
+
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--surface-ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Tipografia display: ótica variável */
+  h1,
+  h2,
+  h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--surface-1);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--brand);
+    border-radius: 99px;
+    border: 3px solid var(--surface-1);
+  }
+}
+
+@layer components {
+  /* ---------- Escala tipográfica fluida ---------- */
+  .t-hero {
+    font-size: clamp(3.2rem, 12vw, 11rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+  }
+  .t-display {
+    font-size: clamp(2.4rem, 6.2vw, 5.6rem);
+    line-height: 0.94;
+    letter-spacing: -0.04em;
+  }
+  .t-title {
+    font-size: clamp(1.7rem, 3.2vw, 2.9rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+  .t-lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .t-body {
+    font-size: 1rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .t-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .t-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* ---------- Layout ---------- */
+  .shell {
+    width: 100%;
+    max-width: var(--max-w, 1440px);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  /* ---------- Superfícies ---------- */
+  .surface-dark {
+    background: var(--surface-ink);
+    color: var(--surface-0);
+  }
+  .surface-dark * {
+    border-color: var(--line-invert);
+  }
+
+  /* Grão de filme — dá textura sem poluir */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.28;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Traços e réguas ---------- */
+  .rule {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--line-strong) 12%,
+      var(--line-strong) 88%,
+      transparent
+    );
+  }
+
+  /* ---------- Link com sublinhado que cresce ---------- */
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-expo);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ---------- Máscara de revelação ---------- */
+  .mask-line {
+    display: block;
+    overflow: hidden;
+  }
+
+  /* ---------- Vinheta cinematográfica ---------- */
+  .vignette::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      120% 90% at 50% 40%,
+      transparent 35%,
+      rgba(10, 14, 8, 0.5) 100%
+    );
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .will-transform {
+    will-change: transform;
+  }
+  .bg-noise-none {
+    background-image: none;
+  }
+  /* Corte inferior orgânico usado nos heros */
+  .clip-arch {
+    clip-path: inset(0 0 0 0 round 0 0 clamp(1.5rem, 6vw, 4rem) clamp(1.5rem, 6vw, 4rem));
+  }
+}
+
+/* Acessibilidade: respeita quem pede menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
