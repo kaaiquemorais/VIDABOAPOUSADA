@@ -85,6 +85,10 @@ export default {
           from: { transform: 'rotate(0deg)' },
           to: { transform: 'rotate(360deg)' },
         },
+        shine: {
+          '0%': { transform: 'translateX(-140%) skewX(-20deg)' },
+          '55%,100%': { transform: 'translateX(320%) skewX(-20deg)' },
+        },
       },
       animation: {
         drift: 'drift 22s ease-in-out infinite',
@@ -92,6 +96,7 @@ export default {
         marquee: 'marquee var(--marquee-duration, 40s) linear infinite',
         pulseSoft: 'pulseSoft 5s ease-in-out infinite',
         sun: 'sun 42s linear infinite',
+        shine: 'shine 4.5s ease-in-out infinite',
       },
     },
   },

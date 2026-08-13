@@ -1,40 +1,16 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { FILTROS, LIBRARY } from '../lib/site'
+import { CATEGORIAS, LIBRARY } from '../lib/site'
 import { PageHero } from '../components/layout/PageHero'
 import { Reveal } from '../components/motion/Text'
 import { Button, Arrow } from '../components/ui'
+import { FaixaFotos } from '../components/ui/Carrossel'
 import { useReserva } from '../components/reserva/contexto'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-type FiltroId = (typeof FILTROS)[number]['id']
-
-/* Ordem de exibição do "Tudo" — intercala categorias para o mosaico
-   não ficar com blocos monotemáticos. */
-function montarTudo(): string[] {
-  const grupos = [
-    LIBRARY.quartos,
-    LIBRARY.piscina,
-    LIBRARY.pordosol,
-    LIBRARY.comidas,
-    LIBRARY.local,
-    LIBRARY.noite,
-    LIBRARY.geral,
-    LIBRARY.brinquedos,
-    LIBRARY.animais,
-    LIBRARY.banheiros,
-  ] as readonly (readonly string[])[]
-
-  const saida: string[] = []
-  const maior = Math.max(...grupos.map((g) => g.length))
-  for (let i = 0; i < maior; i++) {
-    for (const g of grupos) if (g[i]) saida.push(g[i])
-  }
-  return saida
-}
 
 /* ============================================================
    Lightbox
@@ -141,23 +117,31 @@ function Lightbox({
 }
 
 /* ============================================================
-   PÁGINA
+   PÁGINA — uma faixa por categoria, cada uma com seu carrossel
    ============================================================ */
 export default function Galeria() {
   const { abrir } = useReserva()
   const [params] = useSearchParams()
 
-  // O carrossel da home aponta para /galeria?c=piscina e afins
-  const inicial = params.get('c')
-  const [filtro, setFiltro] = useState<FiltroId>(
-    FILTROS.some((f) => f.id === inicial) ? (inicial as FiltroId) : 'todas'
-  )
-  const [aberta, setAberta] = useState<number | null>(null)
+  // { categoria, índice } da foto aberta no visualizador
+  const [aberta, setAberta] = useState<{ cat: string; i: number } | null>(null)
 
-  const fotos = useMemo(() => {
-    if (filtro === 'todas') return montarTudo()
-    return [...((LIBRARY as Record<string, readonly string[]>)[filtro] ?? [])]
-  }, [filtro])
+  const fotosAbertas = aberta
+    ? [...((LIBRARY as Record<string, readonly string[]>)[aberta.cat] ?? [])]
+    : []
+
+  // O carrossel da home aponta para /galeria?c=piscina: rola até a faixa
+  const alvo = params.get('c')
+  useEffect(() => {
+    if (!alvo) return
+    const el = document.getElementById(`faixa-${alvo}`)
+    if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 400)
+  }, [alvo])
+
+  const total = CATEGORIAS.reduce(
+    (n, c) => n + ((LIBRARY as Record<string, readonly string[]>)[c.id]?.length ?? 0),
+    0
+  )
 
   return (
     <>
@@ -165,78 +149,29 @@ export default function Galeria() {
         index="03 / 04"
         eyebrow="Galeria"
         title="O que você vê é o que tem."
-        lead="Cento e trinta e sete fotos tiradas dentro da pousada. Se está na tela, está lá quando você chegar."
+        lead={`${total} fotos tiradas dentro da pousada. Se está na tela, está lá quando você chegar.`}
         image="/img/noite/563860545.webp"
         alt="Vista aérea noturna da pousada iluminada"
       />
 
-      {/* Filtros */}
-      <section className="sticky top-[3.6rem] z-[100] border-b border-ink/8 bg-cream/85 backdrop-blur-xl md:top-[4.1rem]">
-        <div className="shell flex gap-1.5 overflow-x-auto py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {FILTROS.map((f) => {
-            const ativo = filtro === f.id
-            return (
-              <button
-                key={f.id}
-                onClick={() => setFiltro(f.id)}
-                className={`t-eyebrow relative shrink-0 rounded-full px-4 py-2.5 transition-colors duration-400 ${
-                  ativo ? 'text-cream' : 'text-ink/50 hover:text-ink'
-                }`}
-              >
-                {ativo && (
-                  <motion.span
-                    layoutId="pilula-filtro"
-                    transition={{ duration: 0.5, ease: EASE }}
-                    className="absolute inset-0 rounded-full bg-ink"
-                  />
-                )}
-                <span className="relative z-10">{f.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
+      <section className="py-10 md:py-14">
+        {CATEGORIAS.map((c, i) => (
+          <div key={c.id} id={`faixa-${c.id}`} className="scroll-mt-24">
+            <FaixaFotos
+              indice={i}
+              titulo={c.titulo}
+              frase={c.frase}
+              fotos={
+                (LIBRARY as Record<string, readonly string[]>)[c.id] ?? []
+              }
+              onSelecionar={(idx) => setAberta({ cat: c.id, i: idx })}
+            />
+          </div>
+        ))}
 
-      {/* Mosaico */}
-      <section className="shell py-12 md:py-16">
-        <motion.div
-          layout
-          className="columns-2 gap-3 md:columns-3 xl:columns-4 [&>*]:mb-3"
-        >
-          <AnimatePresence mode="popLayout">
-            {fotos.map((src, i) => (
-              <motion.button
-                key={src}
-                layout
-                initial={{ opacity: 0, scale: 0.94, filter: 'blur(8px)' }}
-                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{
-                  duration: 0.65,
-                  ease: EASE,
-                  delay: Math.min(i * 0.018, 0.5),
-                }}
-                onClick={() => setAberta(i)}
-                className="group relative block w-full break-inside-avoid overflow-hidden rounded-3xl bg-cream-deep"
-              >
-                <img
-                  src={src}
-                  alt=""
-                  loading="lazy"
-                  className="w-full transition-transform duration-[1100ms] ease-expo group-hover:scale-[1.05]"
-                />
-                <span className="absolute inset-0 bg-ink/0 transition-colors duration-500 group-hover:bg-ink/25" />
-                <span className="t-eyebrow t-mono absolute bottom-3 left-3 translate-y-2 text-cream opacity-0 transition-all duration-500 ease-expo group-hover:translate-y-0 group-hover:opacity-100">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-              </motion.button>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        <Reveal className="mt-16 flex flex-col items-center gap-5 text-center">
+        <Reveal className="shell mt-10 flex flex-col items-center gap-5 text-center">
           <p className="t-eyebrow text-ink/40">
-            {fotos.length} fotos · {FILTROS.find((f) => f.id === filtro)?.label}
+            {total} fotos · {CATEGORIAS.length} categorias
           </p>
           <Button onClick={abrir}>
             Reservar sua data <Arrow />
@@ -245,12 +180,12 @@ export default function Galeria() {
       </section>
 
       <AnimatePresence>
-        {aberta !== null && (
+        {aberta && (
           <Lightbox
-            fotos={fotos}
-            indice={aberta}
+            fotos={fotosAbertas}
+            indice={aberta.i}
             onFechar={() => setAberta(null)}
-            onNavegar={setAberta}
+            onNavegar={(n) => setAberta({ cat: aberta.cat, i: n })}
           />
         )}
       </AnimatePresence>

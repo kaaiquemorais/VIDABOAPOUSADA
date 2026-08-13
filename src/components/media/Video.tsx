@@ -19,12 +19,10 @@ function prefereMenosMovimento() {
 export function VideoBackdrop({
   src,
   srcMobile,
-  poster,
   className = '',
 }: {
   src: string
   srcMobile?: string
-  poster: string
   className?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
@@ -43,37 +41,39 @@ export function VideoBackdrop({
 
     const obs = new IntersectionObserver(
       ([entrada]) => {
-        if (entrada.isIntersecting) el.play().catch(() => {})
+        // Só toca depois que o vídeo aparece. Se tocasse durante o fade,
+        // ele já teria avançado alguns segundos ao ficar visível e o corte
+        // com o pôster (primeiro quadro) apareceria como um salto.
+        if (entrada.isIntersecting && pronto) el.play().catch(() => {})
         else el.pause()
       },
       { threshold: 0.05 }
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [])
+  }, [pronto])
 
   return (
     <>
-      {/* pôster garante que nunca há um buraco preto enquanto o vídeo carrega */}
-      <img
-        src={poster}
-        alt=""
-        aria-hidden
-        className={`absolute inset-0 h-full w-full object-cover ${className}`}
-      />
+      {/* Sem pôster: só o vídeo. Até ele estar pronto, fica o fundo escuro
+          da seção, sem imagem estática aparecendo antes. */}
       <motion.video
         ref={ref}
         src={fonte}
-        poster={poster}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         aria-hidden
-        onCanPlay={() => setPronto(true)}
+        onCanPlay={(e) => {
+          const v = e.currentTarget
+          v.currentTime = 0
+          setPronto(true)
+          v.play().catch(() => {})
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: pronto ? 1 : 0 }}
-        transition={{ duration: 1.2, ease: EASE }}
+        transition={{ duration: 0.6, ease: EASE }}
         className={`absolute inset-0 h-full w-full object-cover ${className}`}
       />
     </>

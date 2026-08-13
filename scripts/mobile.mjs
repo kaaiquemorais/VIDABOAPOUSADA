@@ -9,7 +9,7 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 const erros = []
 page.on('pageerror', (e) => erros.push(String(e)))
 
-await page.goto(BASE + '/', { waitUntil: 'networkidle' })
+await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
 await page.waitForTimeout(3000)
 await page.screenshot({ path: 'shots/m-hero.png' })
 

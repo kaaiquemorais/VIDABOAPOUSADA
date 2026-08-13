@@ -12,7 +12,7 @@ const erros = []
 page.on('pageerror', (e) => erros.push(String(e)))
 page.on('console', (m) => m.type() === 'error' && erros.push(m.text()))
 
-await page.goto(BASE + '/', { waitUntil: 'networkidle' })
+await page.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
 await page.waitForTimeout(3200)
 await page.screenshot({ path: 'shots/hero.png' })
 
@@ -63,7 +63,7 @@ await page.close()
 
 /* Mobile */
 const mob = await browser.newPage({ viewport: { width: 390, height: 844 } })
-await mob.goto(BASE + '/', { waitUntil: 'networkidle' })
+await mob.goto(BASE + '/', { waitUntil: 'domcontentloaded' })
 await mob.waitForTimeout(3200)
 await mob.screenshot({ path: 'shots/m-hero.png' })
 

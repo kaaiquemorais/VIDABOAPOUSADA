@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 const b = await chromium.launch()
 const p = await b.newPage({ viewport: { width: 1440, height: 900 } })
-await p.goto('http://localhost:4173/', { waitUntil: 'networkidle' })
+await p.goto('http://localhost:4173/', { waitUntil: 'domcontentloaded' })
 await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.45))
 await p.waitForTimeout(1800)
 const m = await p.evaluate(() => {

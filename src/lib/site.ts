@@ -95,7 +95,7 @@ export const CATEGORIAS = [
   },
   {
     id: 'local',
-    titulo: 'O terreno',
+    titulo: 'A área',
     frase: 'Mata nativa, lago e gramado até onde a vista alcança.',
     capa: HERO.aereaDia,
   },
@@ -107,13 +107,13 @@ export const CATEGORIAS = [
   },
   {
     id: 'brinquedos',
-    titulo: 'Crianças',
+    titulo: 'Brinquedos',
     frase: 'Escorregador, campo e espaço de sobra para cansar.',
     capa: HERO.playground,
   },
   {
     id: 'animais',
-    titulo: 'Bichos',
+    titulo: 'Animais',
     frase: 'Os saguis passam de manhã. Moram aqui antes da gente.',
     capa: HERO.sagui,
   },
@@ -122,6 +122,12 @@ export const CATEGORIAS = [
     titulo: 'Banho',
     frase: 'Box amplo, água quente que não falha, erva-doce.',
     capa: HERO.banho,
+  },
+  {
+    id: 'geral',
+    titulo: 'A pousada',
+    frase: 'O conjunto visto de cima, de perto e de dentro.',
+    capa: HERO.fachada,
   },
 ] as const
 
@@ -221,15 +227,16 @@ export const DISTANCIAS = [
 
 /* ---------- Galeria: filtros ---------- */
 export const FILTROS = [
-  { id: 'todas', label: 'Tudo' },
   { id: 'quartos', label: 'Chalés' },
   { id: 'piscina', label: 'Piscina' },
   { id: 'pordosol', label: 'Pôr do sol' },
   { id: 'comidas', label: 'Café' },
-  { id: 'local', label: 'Terreno' },
+  { id: 'local', label: 'Área' },
   { id: 'noite', label: 'Noite' },
-  { id: 'brinquedos', label: 'Crianças' },
-  { id: 'animais', label: 'Bichos' },
+  { id: 'brinquedos', label: 'Brinquedos' },
+  { id: 'animais', label: 'Animais' },
+  { id: 'banheiros', label: 'Banho' },
+  { id: 'geral', label: 'Geral' },
 ] as const
 
 export { LIBRARY }

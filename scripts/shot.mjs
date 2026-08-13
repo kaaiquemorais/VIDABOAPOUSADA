@@ -23,7 +23,7 @@ for (const [nome, rota] of rotas) {
   page.on('console', (m) => m.type() === 'error' && erros.push(m.text()))
   page.on('pageerror', (e) => erros.push(String(e)))
 
-  await page.goto(BASE + rota, { waitUntil: 'networkidle' })
+  await page.goto(BASE + rota, { waitUntil: 'domcontentloaded' })
   await page.waitForTimeout(2600)
 
   const altura = await page.evaluate(() => document.body.scrollHeight)

@@ -8,14 +8,14 @@ import {
   CATEGORIAS,
   DEPOIMENTOS,
   VIDEO,
+  LIBRARY,
 } from '../lib/site'
 import { VideoBackdrop, VideoPlayer } from '../components/media/Video'
 import { ReservaBar } from '../components/ui/ReservaBar'
 import { LogoHero } from '../components/brand/LogoHero'
-import { Carrossel } from '../components/ui/Carrossel'
+import { FaixaFotos } from '../components/ui/Carrossel'
 import {
   SplitText,
-  ScrollReveal,
   Reveal,
   Stagger,
   StaggerItem,
@@ -45,15 +45,11 @@ function Hero() {
   return (
     <section
       ref={ref}
-      className="vignette grain relative flex h-[100svh] w-full items-center overflow-hidden bg-ink"
+      className="vignette sem-escurecer-mobile grain relative flex h-[100svh] w-full items-center overflow-hidden bg-ink"
     >
       <motion.div style={{ y, scale }} className="absolute inset-0 will-transform">
-        <VideoBackdrop
-          src={VIDEO.hero}
-          srcMobile={VIDEO.heroMobile}
-          poster={VIDEO.heroPoster}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/35 to-ink/55" />
+        <VideoBackdrop src={VIDEO.hero} srcMobile={VIDEO.heroMobile} />
+        <div className="absolute inset-0 hidden bg-gradient-to-t from-ink via-ink/35 to-ink/55 md:block" />
       </motion.div>
 
       <motion.div
@@ -66,7 +62,7 @@ function Hero() {
           transition={{ duration: 1, ease: EASE, delay: 0.45 }}
           className="t-eyebrow text-gold-400"
         >
-          {MARCA.cidade} · {MARCA.uf} · {MARCA.regiao}
+          {MARCA.cidade} · {MARCA.uf}
         </motion.p>
 
         <LogoHero className="mt-3 w-[min(58vw,24rem)]" />
@@ -122,11 +118,14 @@ function Numeros() {
         <Stagger className="grid grid-cols-4 py-5">
           {NUMEROS.map((n) => (
             <StaggerItem key={n.label}>
-              <div className="flex items-baseline gap-2.5">
-                <p className="font-display text-[clamp(1.35rem,2.2vw,1.9rem)] leading-none tracking-tightest text-cream">
+              {/* whitespace-nowrap: o rótulo nunca quebra em duas linhas */}
+              <div className="flex items-baseline gap-2 whitespace-nowrap">
+                <p className="font-display text-[clamp(1.15rem,1.8vw,1.7rem)] leading-none tracking-tightest text-cream">
                   <CountUp to={n.valor} suffix={n.sufixo} duration={2} />
                 </p>
-                <p className="t-eyebrow max-w-[14ch] text-cream/40">{n.label}</p>
+                <p className="t-eyebrow text-[0.6rem] text-cream/40 lg:text-[0.68rem]">
+                  {n.label}
+                </p>
               </div>
             </StaggerItem>
           ))}
@@ -165,10 +164,13 @@ function Manifesto() {
           <Eyebrow className="invisible hidden lg:block">.</Eyebrow>
 
           <div className="mt-5 flex flex-1 flex-col justify-between gap-10">
-            <ScrollReveal
-              text="Não existe recepção, corredor nem porta ao lado. Cada chalé é uma casa inteira: o carro para na frente, a varanda abre nos fundos e a serra toma a janela toda."
-              className="font-display text-[clamp(1.5rem,3vw,2.6rem)] leading-[1.14] tracking-display text-ink"
-            />
+            <Reveal>
+              <p className="font-display text-[clamp(1.5rem,3vw,2.6rem)] leading-[1.14] tracking-display text-ink">
+                Não existe recepção, corredor nem porta ao lado. Cada chalé é
+                uma casa inteira: o carro para na frente, a varanda abre nos
+                fundos e a serra toma a janela toda.
+              </p>
+            </Reveal>
 
             <Stagger className="grid gap-7 sm:grid-cols-2">
               {[
@@ -243,23 +245,37 @@ function Tour() {
 }
 
 /* ============================================================
-   CATEGORIAS — carrossel arrastável
+   CATEGORIAS — um carrossel por assunto, com as fotos reais
    ============================================================ */
 function Categorias() {
   return (
-    <section className="section bg-cream-warm">
-      <Carrossel
-        eyebrow="Por dentro"
-        titulo="Arraste e veja de perto."
-        lead="Cada capa abre a galeria daquele canto da pousada. Sem foto de banco de imagem, sem render, sem promessa."
-        itens={CATEGORIAS.map((c) => ({
-          id: c.id,
-          titulo: c.titulo,
-          frase: c.frase,
-          capa: c.capa,
-          to: `/galeria?c=${c.id}`,
-        }))}
-      />
+    <section className="bg-cream-warm py-[var(--section-y)]">
+      <div className="shell">
+        <SectionHead
+          eyebrow="Por dentro"
+          title="Cada canto tem o seu."
+          lead="Arraste para o lado em qualquer faixa. São fotos tiradas aqui, sem banco de imagem, sem render, sem promessa."
+          className="mb-6"
+        />
+      </div>
+
+      {CATEGORIAS.map((c, i) => (
+        <FaixaFotos
+          key={c.id}
+          indice={i}
+          titulo={c.titulo}
+          frase={c.frase}
+          // a capa (reprocessada em alta qualidade) abre a faixa;
+          // no máximo dez por vez, o resto espera na galeria
+          fotos={[
+            c.capa,
+            ...(LIBRARY as Record<string, readonly string[]>)[c.id].filter(
+              (f) => f !== c.capa
+            ),
+          ].slice(0, 10)}
+          to={`/galeria?c=${c.id}`}
+        />
+      ))}
     </section>
   )
 }

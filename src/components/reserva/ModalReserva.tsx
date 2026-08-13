@@ -63,7 +63,7 @@ export function ModalReserva() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={fechar}
-          className="fixed inset-0 z-[500] flex items-start justify-center overflow-y-auto bg-ink/70 p-4 backdrop-blur-md sm:items-center sm:p-6"
+          className="fixed inset-0 z-[500] flex items-center justify-center bg-ink/70 p-4 backdrop-blur-md sm:p-6"
         >
           <motion.div
             role="dialog"
@@ -74,7 +74,9 @@ export function ModalReserva() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.98 }}
             transition={{ duration: 0.55, ease: EASE }}
-            className="relative my-auto w-full max-w-[34rem] overflow-hidden rounded-[2rem] p-6 shadow-2xl sm:p-8"
+            /* Altura travada na tela: o miolo rola por dentro, então o
+               cabeçalho e o botão de enviar nunca ficam cortados */
+            className="relative flex max-h-[94svh] w-full max-w-[34rem] flex-col overflow-hidden rounded-[2rem] shadow-2xl"
             style={{
               background:
                 'linear-gradient(165deg, #C4551F 0%, #A8431A 45%, #7F3315 100%)',
@@ -90,8 +92,8 @@ export function ModalReserva() {
               </svg>
             </button>
 
-            {/* Cabeçalho */}
-            <div className="flex flex-col items-center text-center">
+            {/* Cabeçalho fixo */}
+            <div className="flex shrink-0 flex-col items-center px-6 pb-4 pt-7 text-center sm:px-8">
               <img src="/brand/logo-mark.png" alt="" aria-hidden className="h-10 w-10" />
               <h2 className="mt-2 font-display text-[1.6rem] leading-tight tracking-display text-cream">
                 Vamos reservar?
@@ -101,8 +103,10 @@ export function ModalReserva() {
               </p>
             </div>
 
+            {/* Miolo rolável */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-2 sm:px-8">
             {/* Datas */}
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-2">
                 <span className={rotulo}>Check-in</span>
                 <input
@@ -200,27 +204,30 @@ export function ModalReserva() {
               />
             </label>
 
-            {/* Prévia */}
-            <div className="mt-5 rounded-2xl border border-cream/20 bg-black/15 p-4">
-              <p className={rotulo}>Prévia da mensagem</p>
-              <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-cream/85">
-                {mensagem}
-              </p>
+              {/* Prévia */}
+              <div className="mt-5 rounded-2xl border border-cream/20 bg-black/15 p-4">
+                <p className={rotulo}>Prévia da mensagem</p>
+                <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-cream/85">
+                  {mensagem}
+                </p>
+              </div>
             </div>
 
-            <button
-              onClick={enviar}
-              className="mt-4 w-full rounded-2xl bg-[#25D366] py-3.5 font-medium text-[#0B3D1E] transition-transform duration-300 hover:bg-[#1FBF5A]"
-            >
-              Enviar no WhatsApp
-            </button>
-
-            <button
-              onClick={fechar}
-              className="mx-auto mt-3 block text-[0.68rem] uppercase tracking-[0.2em] text-cream/55 transition-colors duration-300 hover:text-cream"
-            >
-              Voltar
-            </button>
+            {/* Rodapé fixo */}
+            <div className="shrink-0 px-6 pb-6 pt-4 sm:px-8">
+              <button
+                onClick={enviar}
+                className="w-full rounded-2xl bg-[#25D366] py-3.5 font-medium text-[#0B3D1E] transition-colors duration-300 hover:bg-[#1FBF5A]"
+              >
+                Enviar no WhatsApp
+              </button>
+              <button
+                onClick={fechar}
+                className="mx-auto mt-3 block text-[0.68rem] uppercase tracking-[0.2em] text-cream/55 transition-colors duration-300 hover:text-cream"
+              >
+                Voltar
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

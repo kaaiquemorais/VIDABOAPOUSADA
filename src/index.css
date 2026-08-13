@@ -209,6 +209,13 @@
     overflow: hidden;
   }
 
+  /* No celular o hero fica com a imagem limpa, sem escurecimento */
+  @media (max-width: 767px) {
+    .sem-escurecer-mobile::before {
+      display: none;
+    }
+  }
+
   /* ---------- Vinheta cinematográfica ---------- */
   .vignette::before {
     content: '';
