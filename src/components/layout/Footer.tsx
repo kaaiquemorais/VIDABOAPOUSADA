@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
 import { MARCA, NAV } from '../../lib/site'
 import { SplitText, Reveal } from '../motion/Text'
 import { Button, Arrow, Eyebrow } from '../ui'
 import { Marquee } from '../motion/Interactive'
 import { useReserva } from '../reserva/contexto'
+import { irPara } from './Nav'
 
 export function Footer() {
   const ano = new Date().getFullYear()
@@ -74,10 +74,13 @@ export function Footer() {
               <p className="t-eyebrow text-cream/35">Navegar</p>
               <ul className="flex flex-col gap-2">
                 {NAV.map((n) => (
-                  <li key={n.to}>
-                    <Link to={n.to} className={link}>
+                  <li key={n.id}>
+                    <button
+                      onClick={() => irPara(n.id)}
+                      className={`${link} text-left`}
+                    >
                       {n.label}
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>

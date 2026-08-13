@@ -94,12 +94,12 @@ export function ReservaBar() {
 
       <button
         type="submit"
-        className="relative flex items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-terra-500 px-8 py-3.5 font-medium text-cream transition-colors duration-400 hover:bg-terra-600 md:m-2 md:py-3"
+        className="relative flex items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-[#25D366] px-8 py-3.5 font-medium text-[#0B3D1E] transition-colors duration-400 hover:bg-[#1FBF5A] md:m-2 md:py-3"
       >
         {/* Brilho que atravessa o botão devagar */}
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 animate-shine bg-gradient-to-r from-transparent via-white/45 to-transparent"
+          className="pointer-events-none absolute inset-y-0 -left-1/3 w-2/5 animate-shine bg-gradient-to-r from-transparent via-white/55 to-transparent blur-[2px]"
         />
         <span className="relative z-10">Consultar</span>
       </button>

@@ -1,0 +1,13 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const p = await b.newPage({ viewport: { width: 390, height: 844 } })
+await p.goto('http://localhost:4173/', { waitUntil: 'domcontentloaded' })
+await p.waitForTimeout(2500)
+await p.click('button[aria-label="Menu"]')
+await p.waitForTimeout(1200)
+await p.screenshot({ path: 'shots/m-menu.png' })
+await p.click('button:has-text("Fechar")')
+await p.waitForTimeout(1200)
+const aberto = await p.evaluate(() => !!document.querySelector('nav a[href="/chales"]')?.closest('.fixed'))
+console.log('menu fechou:', !aberto ? 'SIM' : 'NAO')
+await b.close()

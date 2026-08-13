@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { SplitText } from '../motion/Text'
@@ -9,7 +8,7 @@ import { SplitText } from '../motion/Text'
    ============================================================ */
 type ButtonProps = {
   children: ReactNode
-  to?: string
+  /** link externo; abre em nova aba */
   href?: string
   onClick?: () => void
   variant?: 'solid' | 'outline' | 'ghost' | 'light'
@@ -42,7 +41,6 @@ const fills = {
 
 export function Button({
   children,
-  to,
   href,
   onClick,
   variant = 'solid',
@@ -68,17 +66,10 @@ export function Button({
       </button>
     )
   }
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noreferrer" className={cls}>
-        {inner}
-      </a>
-    )
-  }
   return (
-    <Link to={to ?? '/'} className={cls}>
+    <a href={href} target="_blank" rel="noreferrer" className={cls}>
       {inner}
-    </Link>
+    </a>
   )
 }
 

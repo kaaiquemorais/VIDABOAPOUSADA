@@ -1,19 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { CATEGORIAS, LIBRARY } from '../lib/site'
-import { PageHero } from '../components/layout/PageHero'
-import { Reveal } from '../components/motion/Text'
-import { Button, Arrow } from '../components/ui'
 import { FaixaFotos } from '../components/ui/Carrossel'
-import { useReserva } from '../components/reserva/contexto'
+import { SectionHead } from '../components/ui'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-
 /* ============================================================
-   Lightbox
+   Visualizador em tela cheia
    ============================================================ */
 function Lightbox({
   fotos,
@@ -64,9 +59,12 @@ function Lightbox({
       <button
         onClick={onFechar}
         aria-label="Fechar"
-        className="t-eyebrow absolute right-[var(--gutter)] top-8 z-10 text-cream/60 transition-colors hover:text-cream"
+        className="t-eyebrow absolute right-[var(--gutter)] top-8 z-10 flex items-center gap-2.5 rounded-full border border-cream/25 px-5 py-2.5 text-cream/70 transition-colors hover:bg-cream hover:text-ink"
       >
-        Fechar ✕
+        <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+        </svg>
+        Fechar
       </button>
 
       <button
@@ -105,7 +103,7 @@ function Lightbox({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.02 }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="max-h-[84svh] max-w-[92vw] object-contain"
+          className="max-h-[84svh] max-w-[92vw] rounded-2xl object-contain"
         />
       </AnimatePresence>
 
@@ -117,67 +115,52 @@ function Lightbox({
 }
 
 /* ============================================================
-   PÁGINA — uma faixa por categoria, cada uma com seu carrossel
+   Galeria: uma faixa por categoria
    ============================================================ */
-export default function Galeria() {
-  const { abrir } = useReserva()
-  const [params] = useSearchParams()
+/* A capa (reprocessada em alta qualidade) abre a faixa. O visualizador
+   precisa da mesma ordem, senão o índice clicado abriria outra foto. */
+function fotosDe(id: string, capa: string) {
+  const todas = (LIBRARY as Record<string, readonly string[]>)[id] ?? []
+  return [capa, ...todas.filter((f) => f !== capa)]
+}
 
-  // { categoria, índice } da foto aberta no visualizador
+export function Galeria() {
   const [aberta, setAberta] = useState<{ cat: string; i: number } | null>(null)
 
   const fotosAbertas = aberta
-    ? [...((LIBRARY as Record<string, readonly string[]>)[aberta.cat] ?? [])]
+    ? fotosDe(
+        aberta.cat,
+        CATEGORIAS.find((c) => c.id === aberta.cat)?.capa ?? ''
+      )
     : []
 
-  // O carrossel da home aponta para /galeria?c=piscina: rola até a faixa
-  const alvo = params.get('c')
-  useEffect(() => {
-    if (!alvo) return
-    const el = document.getElementById(`faixa-${alvo}`)
-    if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 400)
-  }, [alvo])
-
   const total = CATEGORIAS.reduce(
-    (n, c) => n + ((LIBRARY as Record<string, readonly string[]>)[c.id]?.length ?? 0),
+    (n, c) =>
+      n + ((LIBRARY as Record<string, readonly string[]>)[c.id]?.length ?? 0),
     0
   )
 
   return (
-    <>
-      <PageHero
-        index="03 / 04"
-        eyebrow="Galeria"
-        title="O que você vê é o que tem."
-        lead={`${total} fotos tiradas dentro da pousada. Se está na tela, está lá quando você chegar.`}
-        image="/img/noite/563860545.webp"
-        alt="Vista aérea noturna da pousada iluminada"
-      />
+    <section id="galeria" className="bg-cream-warm py-[var(--section-y)] scroll-mt-20">
+      <div className="shell">
+        <SectionHead
+          eyebrow="Galeria"
+          title="Todas as fotos da pousada."
+          lead={`${total} imagens feitas na própria propriedade, organizadas por ambiente. Arraste para o lado em qualquer faixa.`}
+          className="mb-6"
+        />
+      </div>
 
-      <section className="py-10 md:py-14">
-        {CATEGORIAS.map((c, i) => (
-          <div key={c.id} id={`faixa-${c.id}`} className="scroll-mt-24">
-            <FaixaFotos
-              indice={i}
-              titulo={c.titulo}
-              frase={c.frase}
-              fotos={
-                (LIBRARY as Record<string, readonly string[]>)[c.id] ?? []
-              }
-              onSelecionar={(idx) => setAberta({ cat: c.id, i: idx })}
-            />
-          </div>
-        ))}
-
-        <Reveal className="shell mt-10 flex flex-col items-center gap-5 text-center">
-          <p className="t-eyebrow text-ink/40">
-            {total} fotos · {CATEGORIAS.length} categorias
-          </p>
-          <Button onClick={abrir}>
-            Reservar sua data <Arrow />
-          </Button>
-        </Reveal>
-      </section>
+      {CATEGORIAS.map((c, i) => (
+        <FaixaFotos
+          key={c.id}
+          indice={i}
+          titulo={c.titulo}
+          frase={c.frase}
+          fotos={fotosDe(c.id, c.capa)}
+          onSelecionar={(idx) => setAberta({ cat: c.id, i: idx })}
+        />
+      ))}
 
       <AnimatePresence>
         {aberta && (
@@ -189,6 +172,6 @@ export default function Galeria() {
           />
         )}
       </AnimatePresence>
-    </>
+    </section>
   )
 }

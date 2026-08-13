@@ -85,9 +85,14 @@ export default {
           from: { transform: 'rotate(0deg)' },
           to: { transform: 'rotate(360deg)' },
         },
+        // Entra invisível, acende no meio do trajeto e apaga antes de sair.
+        // Sem isso o brilho reaparecia de repente ao reiniciar o ciclo.
         shine: {
-          '0%': { transform: 'translateX(-140%) skewX(-20deg)' },
-          '55%,100%': { transform: 'translateX(320%) skewX(-20deg)' },
+          '0%': { transform: 'translateX(-160%) skewX(-18deg)', opacity: '0' },
+          '14%': { opacity: '1' },
+          '46%': { opacity: '1' },
+          '60%': { transform: 'translateX(280%) skewX(-18deg)', opacity: '0' },
+          '100%': { transform: 'translateX(280%) skewX(-18deg)', opacity: '0' },
         },
       },
       animation: {
@@ -96,7 +101,7 @@ export default {
         marquee: 'marquee var(--marquee-duration, 40s) linear infinite',
         pulseSoft: 'pulseSoft 5s ease-in-out infinite',
         sun: 'sun 42s linear infinite',
-        shine: 'shine 4.5s ease-in-out infinite',
+        shine: 'shine 5.5s linear infinite',
       },
     },
   },

@@ -1,16 +1,22 @@
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
 import { MARCA, NAV } from '../../lib/site'
 import { Button, Arrow } from '../ui'
 import { useReserva } from '../reserva/contexto'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-function Wordmark({ tone }: { tone: 'dark' | 'light' }) {
+/* Rola até a seção descontando a altura do cabeçalho fixo */
+export function irPara(id: string) {
+  const alvo = document.getElementById(id)
+  if (!alvo) return
+  const topo = alvo.getBoundingClientRect().top + window.scrollY - 8
+  window.scrollTo({ top: topo, behavior: 'smooth' })
+}
+
+function Wordmark({ tone, onClick }: { tone: 'dark' | 'light'; onClick: () => void }) {
   return (
-    <Link to="/" className="group flex items-center gap-3" aria-label="Vida Boa Pousada">
-      {/* Peças recortadas do logo original: o sol e a assinatura */}
+    <button onClick={onClick} className="group flex items-center gap-3" aria-label="Início">
       <img
         src="/brand/logo-mark.png"
         alt=""
@@ -24,26 +30,26 @@ function Wordmark({ tone }: { tone: 'dark' | 'light' }) {
           className="h-[1.35rem] w-auto object-contain object-left"
         />
         <span
-          className={`t-eyebrow mt-0.5 block text-[0.5rem] ${
+          className={`t-eyebrow mt-0.5 block text-left text-[0.5rem] ${
             tone === 'dark' ? 'text-ink/45' : 'text-cream/55'
           }`}
         >
           {MARCA.sufixo}
         </span>
       </span>
-    </Link>
+    </button>
   )
 }
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [ativa, setAtiva] = useState<string>('')
   const { scrollY } = useScroll()
-  const { pathname } = useLocation()
   const { abrir } = useReserva()
 
   useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 60))
-  useEffect(() => setOpen(false), [pathname])
+
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => {
@@ -51,8 +57,37 @@ export function Nav() {
     }
   }, [open])
 
-  // Toda página abre com um hero escuro em tela cheia; a nav só
-  // inverte para o tom escuro depois que o fundo claro entra.
+  /* Marca no menu a seção que está na tela */
+  useEffect(() => {
+    const alvos = NAV.map((n) => document.getElementById(n.id)).filter(
+      (el): el is HTMLElement => !!el
+    )
+    if (!alvos.length) return
+
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        const visivel = entradas
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (visivel) setAtiva(visivel.target.id)
+      },
+      { rootMargin: '-25% 0px -55% 0px', threshold: [0, 0.25, 0.5] }
+    )
+    alvos.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
+
+  const navegar = (id: string) => {
+    setOpen(false)
+    // espera o menu fechar para o scroll não competir com o overflow travado
+    setTimeout(() => irPara(id), open ? 260 : 0)
+  }
+
+  const aoTopo = () => {
+    setOpen(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const tone: 'dark' | 'light' = scrolled ? 'dark' : 'light'
 
   return (
@@ -70,26 +105,31 @@ export function Nav() {
               : 'rgba(250,244,236,0)',
             backdropFilter: scrolled ? 'blur(18px)' : 'blur(0px)',
             borderBottomColor: scrolled
-              ? 'rgba(28,15,7,0.10)'
+              ? 'rgba(28,15,7,0.09)'
               : 'rgba(28,15,7,0)',
           }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="border-b"
         >
           <div className="shell flex h-[3.6rem] items-center justify-between md:h-[4.1rem]">
-            <Wordmark tone={tone} />
+            <Wordmark tone={tone} onClick={aoTopo} />
 
             <nav className="hidden items-center gap-9 lg:flex">
-              {NAV.map((item) => (
-                <NavLink key={item.to} to={item.to} className="group relative">
-                  {({ isActive }) => (
+              {NAV.map((item) => {
+                const atual = ativa === item.id
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => navegar(item.id)}
+                    className="group relative"
+                  >
                     <span
                       className={`t-eyebrow transition-colors duration-400 ${
                         tone === 'dark'
-                          ? isActive
+                          ? atual
                             ? 'text-terra-500'
                             : 'text-ink/55 hover:text-ink'
-                          : isActive
+                          : atual
                             ? 'text-gold-300'
                             : 'text-cream/65 hover:text-cream'
                       }`}
@@ -97,13 +137,13 @@ export function Nav() {
                       {item.label}
                       <span
                         className={`absolute -bottom-1.5 left-0 h-px w-full origin-right scale-x-0 bg-current transition-transform duration-500 ease-expo group-hover:origin-left group-hover:scale-x-100 ${
-                          isActive ? 'origin-left scale-x-100' : ''
+                          atual ? 'origin-left scale-x-100' : ''
                         }`}
                       />
                     </span>
-                  )}
-                </NavLink>
-              ))}
+                  </button>
+                )
+              })}
             </nav>
 
             <div className="flex items-center gap-3">
@@ -154,35 +194,52 @@ export function Nav() {
             initial={{ clipPath: 'inset(0 0 100% 0)' }}
             animate={{ clipPath: 'inset(0 0 0% 0)' }}
             exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="surface-dark grain fixed inset-0 z-[200] flex flex-col justify-between overflow-hidden px-[var(--gutter)] pb-12 pt-32"
+            transition={{ duration: 0.7, ease: EASE }}
+            className="surface-dark grain fixed inset-0 z-[200] flex flex-col justify-between overflow-hidden px-[var(--gutter)] pb-12 pt-24"
           >
+            <motion.button
+              onClick={() => setOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="t-eyebrow flex w-fit items-center gap-2.5 rounded-full border border-cream/25 px-5 py-2.5 text-cream/70 transition-colors duration-400 hover:bg-cream hover:text-ink"
+            >
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+              </svg>
+              Fechar
+            </motion.button>
+
             <nav className="flex flex-col gap-1">
               {NAV.map((item, i) => (
-                <NavLink key={item.to} to={item.to} className="mask-line py-1">
+                <button
+                  key={item.id}
+                  onClick={() => navegar(item.id)}
+                  className="mask-line py-1 text-left"
+                >
                   <motion.span
                     initial={{ y: '110%' }}
                     animate={{ y: '0%' }}
                     exit={{ y: '110%' }}
-                    transition={{ duration: 0.8, ease: EASE, delay: 0.15 + i * 0.06 }}
+                    transition={{ duration: 0.7, ease: EASE, delay: 0.12 + i * 0.05 }}
                     className="flex items-baseline gap-4"
                   >
                     <span className="t-mono t-eyebrow text-cream/30">
                       0{i + 1}
                     </span>
-                    <span className="font-display text-[13vw] leading-[1] tracking-display text-cream sm:text-6xl">
+                    <span className="font-display text-[11vw] leading-[1.05] tracking-display text-cream sm:text-5xl">
                       {item.label}
                     </span>
                   </motion.span>
-                </NavLink>
+                </button>
               ))}
             </nav>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.5 }}
-              className="flex flex-col gap-6 border-t border-cream/12 pt-8"
+              transition={{ duration: 0.7, ease: EASE, delay: 0.4 }}
+              className="flex flex-col gap-5 border-t border-cream/12 pt-7"
             >
               <p className="t-body text-cream/50">
                 {MARCA.endereco}

@@ -50,20 +50,21 @@ export const VIDEO = {
   tourPoster: '/video/tour-poster.webp',
 } as const
 
+/* Uma página só: cada item leva a uma seção da landing page */
 export const NAV = [
-  { label: 'Início', to: '/' },
-  { label: 'Chalés', to: '/chales' },
-  { label: 'Estrutura', to: '/estrutura' },
-  { label: 'Galeria', to: '/galeria' },
-  { label: 'Onde fica', to: '/localizacao' },
+  { label: 'A pousada', id: 'pousada' },
+  { label: 'Chalés', id: 'chales' },
+  { label: 'Estrutura', id: 'estrutura' },
+  { label: 'Galeria', id: 'galeria' },
+  { label: 'Onde fica', id: 'localizacao' },
 ] as const
 
 /* ---------- Números ---------- */
 export const NUMEROS = [
-  { valor: 7, sufixo: '', label: 'chalés na encosta' },
-  { valor: 5, sufixo: ',0', label: 'no Tripadvisor' },
-  { valor: 360, sufixo: '°', label: 'de serra em volta' },
-  { valor: 0, sufixo: '', label: 'paredes compartilhadas' },
+  { valor: 7, sufixo: '', label: 'chalés independentes' },
+  { valor: 5, sufixo: ',0', label: 'de nota no Tripadvisor' },
+  { valor: 1, sufixo: '', label: 'vaga por chalé' },
+  { valor: 8, sufixo: 'h', label: 'café da manhã servido' },
 ] as const
 
 /* ---------- Categorias do carrossel da home ----------
@@ -72,61 +73,61 @@ export const CATEGORIAS = [
   {
     id: 'quartos',
     titulo: 'Chalés',
-    frase: 'Cama king, blackout e a montanha ocupando a janela.',
+    frase: 'Cama king, ar-condicionado quente e frio e varanda com vista para o vale.',
     capa: HERO.quartoVista,
   },
   {
     id: 'piscina',
     titulo: 'Piscina',
-    frase: 'Toboágua para eles, espreguiçadeira para você.',
+    frase: 'Piscina ao ar livre com toboágua, espreguiçadeiras e vista para a serra.',
     capa: HERO.piscinaSol,
   },
   {
     id: 'pordosol',
     titulo: 'Pôr do sol',
-    frase: 'Vinte minutos de céu laranja. Todo santo dia.',
+    frase: 'O fim de tarde visto da área da piscina e das varandas dos chalés.',
     capa: HERO.poente,
   },
   {
     id: 'comidas',
     titulo: 'Café da manhã',
-    frase: 'Moído na hora, com bolo ainda quente.',
+    frase: 'Café mineiro moído na hora, bolos, pães, frutas e doces caseiros.',
     capa: HERO.cafe,
   },
   {
     id: 'local',
-    titulo: 'A área',
-    frase: 'Mata nativa, lago e gramado até onde a vista alcança.',
+    titulo: 'Área externa',
+    frase: 'Jardim, gramado, lago e mata nativa em volta de toda a propriedade.',
     capa: HERO.aereaDia,
   },
   {
     id: 'noite',
-    titulo: 'A noite',
-    frase: 'Luz baixa nos caminhos e um céu que a cidade não tem.',
+    titulo: 'À noite',
+    frase: 'Iluminação nos caminhos, céu aberto e o silêncio da serra.',
     capa: HERO.aereaNoite,
   },
   {
     id: 'brinquedos',
-    titulo: 'Brinquedos',
-    frase: 'Escorregador, campo e espaço de sobra para cansar.',
+    titulo: 'Para as crianças',
+    frase: 'Playground com escorregador e balanços, além de campo e gramado livre.',
     capa: HERO.playground,
   },
   {
     id: 'animais',
-    titulo: 'Animais',
-    frase: 'Os saguis passam de manhã. Moram aqui antes da gente.',
+    titulo: 'Fauna local',
+    frase: 'Saguis e pássaros circulam pela propriedade ao longo do dia.',
     capa: HERO.sagui,
   },
   {
     id: 'banheiros',
-    titulo: 'Banho',
-    frase: 'Box amplo, água quente que não falha, erva-doce.',
+    titulo: 'Banheiros',
+    frase: 'Banheiro privativo amplo, com box de vidro e amenities inclusos.',
     capa: HERO.banho,
   },
   {
     id: 'geral',
-    titulo: 'A pousada',
-    frase: 'O conjunto visto de cima, de perto e de dentro.',
+    titulo: 'A propriedade',
+    frase: 'O conjunto da pousada visto de cima e a partir das áreas comuns.',
     capa: HERO.fachada,
   },
 ] as const
@@ -135,9 +136,9 @@ export const CATEGORIAS = [
 export const CHALES = [
   {
     nome: 'Chalé Serra',
-    resumo: 'Varanda de frente para o vale.',
+    resumo: 'Varanda privativa voltada para o vale.',
     descricao:
-      'Cama king, blackout que funciona e ar-quente e frio. A porta de vidro abre inteira para a varanda, e a serra entra junto.',
+      'Cama king-size, cortina blackout e ar-condicionado quente e frio. A porta de vidro abre por completo para a varanda, com vista para as montanhas.',
     imagens: [
       '/img/quartos/502081910.webp',
       '/img/quartos/502085514.webp',
@@ -147,9 +148,9 @@ export const CHALES = [
   },
   {
     nome: 'Chalé Vale',
-    resumo: 'Espaço para trabalhar e ficar.',
+    resumo: 'Espaço de trabalho e estadias longas.',
     descricao:
-      'Mesa com duas cadeiras, guarda-roupa fundo e banheiro amplo. Feito para quem chega na quinta e só volta na segunda.',
+      'Mesa com duas cadeiras, guarda-roupa amplo e banheiro espaçoso. Indicado para quem fica alguns dias e precisa de um canto para trabalhar.',
     imagens: [
       '/img/quartos/502085523.webp',
       '/img/quartos/502086830.webp',
@@ -159,48 +160,54 @@ export const CHALES = [
   },
   {
     nome: 'Chalé Família',
-    resumo: 'Cama extra, mesmo sossego.',
+    resumo: 'Cama adicional para quem viaja com crianças.',
     descricao:
-      'A configuração com cama adicional, para quem viaja com criança. Playground e campo a dois minutos a pé.',
+      'Configuração com cama extra, mantendo o mesmo conforto dos demais chalés. Playground e área gramada a poucos passos da porta.',
     imagens: [
       '/img/quartos/563853584.webp',
       '/img/quartos/502129244.webp',
       '/img/quartos/502137500.webp',
     ],
-    itens: ['Cama adicional', 'Playground perto', 'Enxoval completo', 'Silêncio'],
+    itens: ['Cama adicional', 'Playground próximo', 'Enxoval completo', 'Área gramada'],
   },
 ] as const
 
 /* ---------- Estrutura ---------- */
 export const ESTRUTURA = [
   {
-    titulo: 'Piscina com vista',
-    texto: 'Toboágua para as crianças, espreguiçadeira para você. Serra de fundo o dia inteiro.',
+    titulo: 'Piscina ao ar livre',
+    texto:
+      'Toboágua para as crianças e espreguiçadeiras à beira d’água, com a serra ao fundo durante todo o dia.',
     imagem: HERO.piscinaSol,
   },
   {
-    titulo: 'Café da manhã mineiro',
-    texto: 'Café moído na hora, doce de leite, bolo, pão, fruta. Todo dia, sem repetir.',
+    titulo: 'Café da manhã incluso',
+    texto:
+      'Café mineiro moído na hora, bolos, pães, frutas da estação e doces caseiros, servidos todas as manhãs.',
     imagem: HERO.cafe,
   },
   {
-    titulo: 'Playground e campo',
-    texto: 'Escorregador, gangorra e um gramado grande o suficiente para cansar qualquer criança.',
+    titulo: 'Playground e área gramada',
+    texto:
+      'Escorregador, balanços e um gramado extenso para as crianças brincarem com segurança.',
     imagem: HERO.playground,
   },
   {
-    titulo: 'Bicho solto',
-    texto: 'Saguis passam de manhã. Não são atração: moram aqui antes da gente.',
+    titulo: 'Mata nativa preservada',
+    texto:
+      'A propriedade é cercada por mata nativa. Saguis e pássaros circulam livremente pela área.',
     imagem: HERO.sagui,
   },
   {
-    titulo: 'Vaga na porta',
-    texto: 'Cada chalé tem a sua. Você estaciona e entra. Sem corredor, sem elevador, sem recepção.',
+    titulo: 'Estacionamento privativo',
+    texto:
+      'Cada chalé tem sua própria vaga na entrada, com acesso direto à acomodação.',
     imagem: HERO.fachada,
   },
   {
-    titulo: 'A noite',
-    texto: 'Iluminação baixa nos caminhos, céu limpo e um silêncio que a cidade não vende.',
+    titulo: 'Iluminação noturna',
+    texto:
+      'Caminhos iluminados entre os chalés e a área comum, com céu aberto e vista para o vale.',
     imagem: HERO.aereaNoite,
   },
 ] as const

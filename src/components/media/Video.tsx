@@ -26,9 +26,10 @@ export function VideoBackdrop({
   className?: string
 }) {
   const ref = useRef<HTMLVideoElement>(null)
+  const iniciado = useRef(false)
   const [pronto, setPronto] = useState(false)
 
-  // 5,5 MB em rede móvel é caro: telas pequenas recebem o corte leve.
+  // 4 MB em rede móvel é caro: telas pequenas recebem o corte leve.
   const [fonte] = useState(() =>
     srcMobile && typeof window !== 'undefined' && window.innerWidth < 768
       ? srcMobile
@@ -39,44 +40,43 @@ export function VideoBackdrop({
     const el = ref.current
     if (!el || prefereMenosMovimento()) return
 
+    // Pausa fora da tela e retoma ao voltar, sem nunca rebobinar
     const obs = new IntersectionObserver(
       ([entrada]) => {
-        // Só toca depois que o vídeo aparece. Se tocasse durante o fade,
-        // ele já teria avançado alguns segundos ao ficar visível e o corte
-        // com o pôster (primeiro quadro) apareceria como um salto.
-        if (entrada.isIntersecting && pronto) el.play().catch(() => {})
+        if (entrada.isIntersecting) el.play().catch(() => {})
         else el.pause()
       },
       { threshold: 0.05 }
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [pronto])
+  }, [])
 
   return (
-    <>
-      {/* Sem pôster: só o vídeo. Até ele estar pronto, fica o fundo escuro
-          da seção, sem imagem estática aparecendo antes. */}
-      <motion.video
-        ref={ref}
-        src={fonte}
-        muted
-        loop
-        playsInline
-        preload="auto"
-        aria-hidden
-        onCanPlay={(e) => {
-          const v = e.currentTarget
-          v.currentTime = 0
-          setPronto(true)
-          v.play().catch(() => {})
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: pronto ? 1 : 0 }}
-        transition={{ duration: 0.6, ease: EASE }}
-        className={`absolute inset-0 h-full w-full object-cover ${className}`}
-      />
-    </>
+    // Sem pôster: só o vídeo. Até ele estar pronto fica o fundo escuro
+    // da seção, sem imagem estática aparecendo antes.
+    <motion.video
+      ref={ref}
+      src={fonte}
+      muted
+      loop
+      playsInline
+      autoPlay
+      preload="auto"
+      aria-hidden
+      onCanPlay={(e) => {
+        // `canplay` dispara várias vezes conforme o buffer enche. Rebobinar
+        // em todas elas travaria o vídeo no primeiro quadro, parecendo foto.
+        if (iniciado.current) return
+        iniciado.current = true
+        setPronto(true)
+        e.currentTarget.play().catch(() => {})
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: pronto ? 1 : 0 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className={`absolute inset-0 h-full w-full object-cover ${className}`}
+    />
   )
 }
 

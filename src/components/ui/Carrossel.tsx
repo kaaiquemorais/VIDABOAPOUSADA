@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Arrow } from './index'
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -142,17 +140,14 @@ export function FaixaFotos({
   titulo,
   frase,
   fotos,
-  to,
   onSelecionar,
   indice,
 }: {
   titulo: string
   frase: string
   fotos: readonly string[]
-  /** modo link: cada foto leva para a galeria filtrada */
-  to?: string
-  /** modo galeria: cada foto abre o visualizador no índice clicado */
-  onSelecionar?: (i: number) => void
+  /** abre o visualizador no índice clicado */
+  onSelecionar: (i: number) => void
   indice: number
 }) {
   const { trilho, inicio, fim, mover, eventos } = useTrilho()
@@ -211,40 +206,17 @@ export function FaixaFotos({
               transition={{ duration: 0.7, ease: EASE, delay: Math.min(i * 0.05, 0.3) }}
               className="shrink-0 snap-start"
             >
-              {onSelecionar ? (
-                <button
-                  onClick={() => onSelecionar(i)}
-                  className="group block"
-                  aria-label={`Abrir foto ${i + 1} de ${titulo}`}
-                >
-                  <div className={moldura}>{imagem}</div>
-                </button>
-              ) : (
-                <Link to={to ?? '/'} className="group block" draggable={false}>
-                  <div className={moldura}>{imagem}</div>
-                </Link>
-              )}
+              <button
+                onClick={() => onSelecionar(i)}
+                className="group block"
+                aria-label={`Abrir foto ${i + 1} de ${titulo}`}
+              >
+                <div className={moldura}>{imagem}</div>
+              </button>
             </motion.div>
           )
         })}
 
-        {/* Cartão final: leva para a galeria já filtrada */}
-        {to && (
-          <div data-item className="shrink-0 snap-start">
-            <Link
-              to={to}
-              draggable={false}
-              className="group flex aspect-[4/3] w-[17rem] flex-col justify-end rounded-2xl border border-ink/15 p-6 transition-colors duration-500 hover:border-ink/40 md:w-[22rem]"
-            >
-              <span className="font-display text-2xl leading-tight tracking-display text-ink">
-                Ver todas
-              </span>
-              <span className="t-eyebrow mt-3 flex items-center gap-2 text-terra-500">
-                {fotos.length}+ fotos <Arrow />
-              </span>
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   )
